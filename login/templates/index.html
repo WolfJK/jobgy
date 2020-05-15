@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+</head>
+<body>
+    <div>
+        <input type="button" id="ajx" onclick="sendpost(this)" value="提交请求">
+    </div>
+<script>
+    function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+    }
+
+    function sendpost() {
+        var username = 'admin';
+        var password = '123';
+        var csrftoken = getCookie('csrftoken');
+        $.ajax({
+            url:'http://127.0.0.1:8000/',
+            data:{username:username, password:password},
+            headers:{ "X-CSRFtoken":csrftoken},
+            method:'POST',
+            success:function (resp) {
+                console.log(resp);
+            }
+
+        })
+    }
+</script>
+</body>
+</html>
