@@ -25,8 +25,10 @@ SECRET_KEY = 'r$ly)mpy0-eiz8x=3cjfkg26wn3sq9_5y60=wcqnh5!!+!r^dc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+LOG_LEVEL = 'DEBUG'
 
 ALLOWED_HOSTS = ['*']
+
 
 
 # Application definition
@@ -44,6 +46,7 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "login.EmpUserInfo"
 
 MIDDLEWARE = [
+    'login.middleware.BlockedIpMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -51,9 +54,33 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'jobgy.urls'
+
+
+# redis缓存配置
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1", #服务器地址
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "CONNECTION_POOL_KWARGS": {"max_connections": 100}#最大连接数
+            # "PASSWORD": "密码",
+        }
+    }
+}
+# session使用的存储方式
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# 指明使用哪一个库保存session数据
+SESSION_CACHE_ALIAS = "default"
+
+# 设置session失效时间
+SESSION_COOKIE_AGE = 60 * 5
+
+
 
 TEMPLATES = [
     {
@@ -109,7 +136,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 

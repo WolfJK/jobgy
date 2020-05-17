@@ -31,14 +31,13 @@
         var password = '123';
         var csrftoken = getCookie('csrftoken');
         $.ajax({
-            url:'http://127.0.0.1:8000/',
+            url:'/',
             data:{username:username, password:password},
             headers:{ "X-CSRFtoken":csrftoken},
-            method:'POST',
+            method:'post',
             success:function (resp) {
                 console.log(resp);
             }
-
         })
     }
 </script>
