@@ -5,6 +5,7 @@ from login import models
 from django.contrib import auth
 from django.conf import settings
 from django.core import signing
+from django.core.paginator import Paginator
 import base64
 import redis
 import logging
@@ -59,12 +60,11 @@ def login(request):
         if to:
             logger.info('==========已经登录===============')
             empno = request.POST.get('empno')
-            empno = []
-            print('empno', to, empno)
+            num = request.POST.get('num', 1)
             if empno is not None :
-                print('here------------here', )
                 empno = empno if empno else []
-                infos = selectUserInfo(empno)
+                
+                infos = selectUserInfo(empno, int(num))
                 data['msg'] = 'success'
                 data['infos'] = infos
                 #  当用户传参 empno 查询 数据时，执行异步处理
@@ -94,9 +94,9 @@ def register(request):
     return render(request, 'index.html')
 
 
-def selectUserInfo(indes):
+def selectUserInfo(indes, num):
     l = list()
-
+    
     if not indes:
         qs = models.EmpUserInfo.objects.all()
     else:
@@ -108,9 +108,9 @@ def selectUserInfo(indes):
         gruoup_nmae = selectGroupInfo(q.name)
 
         ds['Groupname'] = gruoup_nmae
-
         l.append(ds)
-    return l
+    data = Paginator(l, 5).get_page(num)
+    return data
 
 
 def selectGroupInfo(n):
