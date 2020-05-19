@@ -2,6 +2,15 @@
 import time
 from django.utils.deprecation import MiddlewareMixin
 from django.utils import timezone
+import json 
+
+
+def parse_body(request):
+    try:
+        data = json.loads(request.body) if request.body else {}
+    except Exception as e:
+        data = {_.split('=')[0]: _.split('=')[1] for _ in request.body.decode().split('&')}
+    return data
 
 class BlockedIpMiddleware(MiddlewareMixin):
     """中间件类：IP"""
@@ -11,20 +20,18 @@ class BlockedIpMiddleware(MiddlewareMixin):
         :param request: obj
         :return: response
         """
-        if request.method == 'POST':
-            api_param = '&'.join([i + '|' + j for i, j in request.POST.items()])
-            api_user = request.POST.get('username')
-        else:
-            api_param, api_user = '', ''
+
         api_info = dict(
             api_curr = getTime(),
             api_method = request.method,
             api_path = request.path,
-            api_user = api_user,
+            api_user = request.user,
             api_ip = request.META['REMOTE_ADDR'],
-            api_param = api_param
+            api_param = parse_body(request)
         )
-        print('---------------------', api_info)
+        log = '{api_curr} {api_method} {api_path} {api_user} {api_ip} {api_param}'.format(**api_info)
+        with open('log', 'a+', encoding='utf8') as p:
+            p.write(log)
 
 
 
